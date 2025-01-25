@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rozpoznawanie cyfr</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Rozpoznawanie cyfr z rysunku</h1>
+    <canvas id="drawingCanvas" width="500" height="500"></canvas>
+    <br>
+    <button id="wyczysc">Wyczyść obszar</button>
+    <button id="Koloch">Model Koloch</button>
+    <button id="Klimeczek">Model Klimeczek</button>
+    <button id="Dorosh">Model Dorosh</button>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(event) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        document.getElementById('wyczysc').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        function recognizeDigit(modelName) {
+            const imageData = canvas.toDataURL('image/png');
+
+            fetch('/process_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    image: imageData.split(',')[1], 
+                    model: modelName 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(`Rozpoznano cyfrę: ${data.digit}`);
+                } else {
+                    alert(`Błąd: ${data.error}`);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        document.getElementById('Koloch').addEventListener('click', () => recognizeDigit('M_Koloch'));
+        document.getElementById('Klimeczek').addEventListener('click', () => recognizeDigit('Klimeczek'));
+        document.getElementById('Dorosh').addEventListener('click', () => recognizeDigit('Dorosh'));
+    </script>
+</body>
+</html>
