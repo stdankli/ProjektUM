@@ -2,6 +2,8 @@
 
 ## Opis
 
+https://projektum.onrender.com/
+
 Aplikacja umożliwia użytkownikowi rysowanie cyfr na wirtualnym płótnie (canvas) w przeglądarce, a następnie przesyła obraz do serwera Flask, który korzysta z wytrenowanych modeli TensorFlow do rozpoznawania cyfr.
 
 Aplikacja obsługuje trzy różne modele rozpoznawania cyfr:
